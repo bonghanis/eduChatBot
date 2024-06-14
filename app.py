@@ -43,7 +43,7 @@ def main():
         # if api_key:
         #     st.session_state["api_key"] = api_key
 
-        st.session_state["api_key"] = "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"
+        st.session_state["api_key"] = st.secrets["API_KEY"]
         
         # user name 입력
         if user_name := st.text_input("대화명을 입력하세요:"):
