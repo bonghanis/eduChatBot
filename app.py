@@ -31,6 +31,8 @@ def download_text(text, filename):
 
 def main():
     # 사이드바 
+    user_name = ''
+
     with st.sidebar:
         # 페이지 제목 설정
         st.title("교육용 챗봇")
@@ -44,9 +46,7 @@ def main():
         st.session_state["api_key"] = "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"
         
         # user name 입력
-        user_name = st.text_input("대화명을 입력하세요:")
-
-        if user_name:
+        if user_name := st.text_input("대화명을 입력하세요:"):
             st.session_state["user_name_1"] = user_name
 
 
@@ -80,7 +80,11 @@ def main():
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    if prompt := st.chat_input("What is up?"):
+    if prompt := st.chat_input("대와 내용을 입력해 주세요."):
+        if not user_name:
+            st.warning('대화명을 입력해 주세요!', icon='⚠️')
+            return
+
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
