@@ -35,11 +35,13 @@ def main():
         # 페이지 제목 설정
         st.title("교육용 챗봇")
 
-        # api key 입력
-        api_key = st.text_input("API 키를 입력하세요:", type = "password")
+        # # api key 입력
+        # api_key = st.text_input("API 키를 입력하세요:", type = "password")
         
-        if api_key:
-            st.session_state["api_key"] = api_key
+        # if api_key:
+        #     st.session_state["api_key"] = api_key
+
+        st.session_state["api_key"] = "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"
         
         # user name 입력
         user_name = st.text_input("대화명을 입력하세요:")
