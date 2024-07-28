@@ -1,0 +1,7 @@
+streamlit>=1.0
+streamlit_modal_input
+openai>=0.10.0
+langchain
+anthropic
+gspread
+google-auth
