@@ -87,7 +87,7 @@ def getSetupInfo():
     data = ws.col_values(2)
     temp = {}
     temp["url"] = data[0]
-    temp["serviceOnOff"] = data[1]
+    temp["serviceOnOff"] = data[1].lower()
     temp["AI"] = data[2]
     temp["key"] = data[3]
     temp["model"] = data[4]
