@@ -59,8 +59,8 @@ def initialize(api_key, nick_name):
     # Google Spread Sheet
     gc = gs.get_authorize()
     sheet_url = st.session_state["setupInfo"]["url"]
-    doc = gc.open_by_url(sheet_url)
-    st.session_state["sheet"] = gs.get_worksheet(doc, nick_name)
+    st.session_state["doc"] = gc.open_by_url(sheet_url)
+    st.session_state["sheet"] = gs.get_worksheet(st.session_state["doc"], nick_name)
     log_p("초기화 완료")
 
 def set_class_info():
@@ -249,7 +249,7 @@ def end_conversation():
     log_p("평가 시작")
 
     # TODO 종합평가, 평어를 시트에 저장
-    sheet = gs.get_summary_sheet()
+    sheet = gs.get_summary_sheet(st.session_state["doc"])
     setupInfo = st.session_state['setupInfo']
     a_p = setupInfo["a_p"]
     e_p = setupInfo["e_p"]

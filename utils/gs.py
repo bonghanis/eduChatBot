@@ -193,10 +193,9 @@ def delete_message():
     target_row = len(target.col_values(1))
     target.delete_rows(target_row)
 
-def get_summary_sheet():
+def get_summary_sheet(doc):
     """
     Returns:
         '수업요약' 시트를 리턴
     """
-    gc = get_authorize()
-    return gc.open_by_url(st.session_state["setupInfo"]["url"]).worksheet("수업요약")
+    return doc.worksheet("수업요약")
