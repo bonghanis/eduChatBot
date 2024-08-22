@@ -191,7 +191,7 @@ def delete_message():
     """
     target = st.session_state["sheet"]
     target_row = len(target.col_values(1))
-    target.delete_row(target_row)
+    target.delete_rows(target_row)
 
 def get_summary_sheet():
     """
