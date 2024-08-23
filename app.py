@@ -67,10 +67,6 @@ def set_class_info():
     log_p("클래스 정보 설정")
     st.session_state['setupInfo'] = gs.getSetupInfo()
 
-# @st.experimental_dialog("출입문")
-# def key():
-#     password = st.text_input("비밀번호")
-
 def process_data(function_name):
     with st.spinner('마무리 하는 중~'):
         function_name()
