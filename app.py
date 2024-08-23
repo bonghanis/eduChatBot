@@ -196,6 +196,8 @@ def execute_prompt(messages):
     except Exception as e:
         log_p(f"ERROR:예상치 못한 오류 발생: {str(e)}")
         st.error("예상치 못한 오류가 발생했습니다. 관리자에게 문의해 주세요.")
+    finally:
+        pass
 
     return None
 
@@ -291,7 +293,14 @@ def add_message(all_messages, role, message):
     gs.add_Content(role, message)
 
 def delete_message():
-    st.session_state.messages.pop()
+    message = st.session_state.messages
+
+    if message[-1]["role"] == "user":
+        message.pop()
+    
+    if message[-1]["role"] == "user":
+        message.pop()
+
     gs.delete_message()
 
 if __name__ == "__main__":
