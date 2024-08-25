@@ -4,6 +4,12 @@ import anthropic
 from anthropic import APIError, APIConnectionError, APITimeoutError, RateLimitError
 from utils import gs
 
+if "processing" not in st.session_state:
+    st.session_state.processing = False
+
+def disable_input(value):
+    st.session_state.processing = value
+
 def initialize(api_key, nick_name):
     """
     애플리케이션의 초기 설정을 수행하는 함수입니다.
@@ -66,7 +72,7 @@ def main():
         if api_key and user_name:
             initialize(api_key, user_name)
 
-        if st.button("대화 종료"):
+        if st.button("대화 종료", on_click=disable_input, args=(True,), disabled=st.session_state.processing):
             process_data(end_conversation)
 
     # 시스템 메시지 초기화
