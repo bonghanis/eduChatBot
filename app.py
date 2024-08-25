@@ -3,34 +3,6 @@ from streamlit import logger
 import anthropic
 from anthropic import APIError, APIConnectionError, APITimeoutError, RateLimitError
 from utils import gs
-import json
-
-def toText(messages):
-    """주고 받은 메세지를 텍스트로 변환하는 함수"""
-    text = ''
-    
-    for conversation in st.session_state.messages:
-        if conversation['role'] == 'user':
-        # 유저 발언 추가
-            text += f"유저: {conversation['content']}\n"
-        elif conversation['role'] == 'assistant':
-        # 챗봇 발언 추가
-            text += f"친구봇: {conversation['content']}\n"
-    
-    # with open(st.session_state["user_name_1"] + '.txt', "w", encoding="utf-8") as f:
-    #     f.write(text)
-    return text
-
-def download_text(text, filename):
-    """텍스트를 파일로 다운로드하는 함수"""
-    binary = text.encode()
-    mime = "text/plain;charset=utf-8"
-    st.download_button(
-        label="텍스트 다운로드",
-        data=binary,
-        file_name=filename,
-        mime=mime,
-    )
 
 def initialize(api_key, nick_name):
     """
@@ -94,10 +66,6 @@ def main():
         if api_key and user_name:
             initialize(api_key, user_name)
 
-        # 대화 다운로드 버튼
-        # if st.button("대화 내용 저장"):
-        #     download_text(toText(st.session_state.messages), st.session_state["user_name_1"] + ".txt")
-
         if st.button("대화 종료"):
             process_data(end_conversation)
 
@@ -111,9 +79,10 @@ def main():
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    if prompt := st.chat_input("대와 내용을 입력해 주세요."):
+    if prompt := st.chat_input("대화 내용을 입력해 주세요."):
         if not user_name:
             st.warning('대화명을 입력해 주세요!', icon='⚠️')
+
             return
         
         add_message(st.session_state.messages, "user", prompt)
@@ -166,13 +135,11 @@ def execute_prompt(messages):
     
     try:
         stream = client.messages.create(
-                        model=setupInfo['model'],
-                        max_tokens=setupInfo['max_tokens'],
-                        temperature=setupInfo['temperature'],
+                        model = setupInfo['model'],
+                        max_tokens = setupInfo['max_tokens'],
+                        temperature = setupInfo['temperature'],
                         system = setupInfo['system'],
-                        messages=[
-                            {"role": m["role"], "content": m["content"]}
-                            for m in messages],
+                        messages = messages,
                         stream = setupInfo['stream']
         )
 
@@ -192,8 +159,6 @@ def execute_prompt(messages):
     except Exception as e:
         log_p(f"ERROR:예상치 못한 오류 발생: {str(e)}")
         st.error("예상치 못한 오류가 발생했습니다. 관리자에게 문의해 주세요.")
-    finally:
-        pass
 
     return None
 
@@ -255,6 +220,7 @@ def end_conversation():
     full_response = ""
 
     # 종합평가
+    st.success("1/2 작업중......")
     add_message(messages, "user", a_p)
     stream = execute_prompt(messages)
     full_response = message_processing(stream)
@@ -262,8 +228,10 @@ def end_conversation():
     
     cell = sheet.find(st.session_state["user_name_1"], in_column = 1)
     sheet.update_cell(cell.row, cell.col + 1, full_response)
+    st.success("1/2 완료")
     
     # 평어
+    st.success("2/2 작업중......")
     full_response = ""
     add_message(messages, "user", e_p)
     stream = execute_prompt(messages)
@@ -271,6 +239,7 @@ def end_conversation():
     add_message(messages, "assistant", full_response)
 
     sheet.update_cell(cell.row, cell.col + 2, full_response)
+    st.success("2/2 완료")
     log_p("평가 완료")
 
 def add_message(all_messages, role, message):
@@ -291,10 +260,7 @@ def add_message(all_messages, role, message):
 def delete_message():
     message = st.session_state.messages
 
-    if message[-1]["role"] == "user":
-        message.pop()
-    
-    if message[-1]["role"] == "user":
+    while message[-1]["role"] == "user":
         message.pop()
 
     gs.delete_message()
