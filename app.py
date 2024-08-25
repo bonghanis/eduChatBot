@@ -85,7 +85,7 @@ def main():
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    if prompt := st.chat_input("대화 내용을 입력해 주세요.", on_submit=disable_input, args=(True,), disabled=st.session_state.processing):
+    if prompt := st.chat_input("대화 내용을 입력해 주세요."):
         if not user_name:
             st.warning('대화명을 입력해 주세요!', icon='⚠️')
 
