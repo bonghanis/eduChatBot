@@ -259,6 +259,7 @@ def end_conversation():
     st.success("1/2 작업중......")
     add_message(messages, "user", a_p, withGS = False)
     stream = execute_prompt(messages)
+    print(stream)
     full_response = message_processing(stream)
     add_message(messages, "assistant", full_response, withGS = False)
     
