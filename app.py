@@ -273,6 +273,7 @@ def end_conversation():
     add_message(messages, "user", e_p, withGS = False)
     stream = execute_prompt(messages)
     full_response = message_processing(stream)
+    print(stream, messages)
     add_message(messages, "assistant", full_response, withGS = False)
 
     sheet.update_cell(cell.row, cell.col + 2, full_response)
