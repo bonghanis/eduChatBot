@@ -14,7 +14,7 @@ def disable_input(value):
 
 def initialize(api_key, nick_name):
     """
-    애플리케이션의 초기 설정을 수행하는 함수입니다.
+    애플리케이션의 초기 설정을 수행하는 함수입니다. ...
 
     Parameters:
     api_key (str): Anthropic API 키
