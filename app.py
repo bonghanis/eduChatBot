@@ -253,6 +253,8 @@ def end_conversation():
     messages = st.session_state.messages[1:]
     full_response = ""
 
+    log_p(messages)
+
     # 종합평가
     st.success("1/2 작업중......")
     add_message(messages, "user", a_p, withGS = False)
