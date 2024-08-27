@@ -1,8 +1,10 @@
+import functools
 import streamlit as st
 from streamlit import logger
 import anthropic
-from anthropic import APIError, APIConnectionError, APITimeoutError, RateLimitError
+from anthropic import APIError, APIConnectionError, APITimeoutError, RateLimitError, APIStatusError
 from utils import gs
+import time
 
 if "processing" not in st.session_state:
     st.session_state.processing = False
@@ -85,9 +87,13 @@ def main():
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    if prompt := st.chat_input("대화 내용을 입력해 주세요."):
+    if prompt := st.chat_input("대화 내용을 입력해 주세요.", on_submit=disable_input, args=(True,), disabled=st.session_state.processing):
         if not user_name:
             st.warning('대화명을 입력해 주세요!', icon='⚠️')
+
+            time.sleep(3)
+            disable_input(False)
+            st.rerun()
 
             return
         
@@ -109,12 +115,18 @@ def main():
                 if stream == None:
                     delete_message()
 
+                    disable_input(False)
+                    time.sleep(3)
+                    st.rerun()
+
                     return
 
                 full_response = message_processing(stream, message_placeholder)
                 message_placeholder.write(full_response)
 
             add_message(st.session_state.messages, "assistant", full_response)
+            disable_input(False)
+            st.rerun()
 
 @st.cache_data 
 def log_p(message):
@@ -159,14 +171,30 @@ def execute_prompt(messages):
     except RateLimitError as e:
         log_p(f"ERROR: API 사용량 제한 오류 발생: {str(e)}")
         st.error("AI 서비스 사용량이 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.")
+    except APIStatusError as e:
+        log_p(f"API 상태 오류가 발생했습니다. 상태 코드: {e.status_code}, 오류 메시지: {e.message}")
+        st.error(f"API 상태 오류가 발생했습니다. 상태 코드: {e.status_code}, 오류 메시지: {e.message}")
     except APIError as e:
         log_p(f"ERROR: API 오류 발생: {str(e)}")
         st.error("AI 서비스와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
     except Exception as e:
         log_p(f"ERROR:예상치 못한 오류 발생: {str(e)}")
         st.error("예상치 못한 오류가 발생했습니다. 관리자에게 문의해 주세요.")
+    finally:
+        pass
 
     return None
+
+def wiget_on_off(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        st.session_state["processing"] = True
+        
+        result = func(*args, **kwargs)
+
+        st.session_state["processing"] = False
+        return result    
+    return wrapper
 
 def message_processing(stream, output = None):
     """
@@ -227,10 +255,10 @@ def end_conversation():
 
     # 종합평가
     st.success("1/2 작업중......")
-    add_message(messages, "user", a_p)
+    add_message(messages, "user", a_p, withGS = False)
     stream = execute_prompt(messages)
     full_response = message_processing(stream)
-    add_message(messages, "assistant", full_response)
+    add_message(messages, "assistant", full_response, withGS = False)
     
     cell = sheet.find(st.session_state["user_name_1"], in_column = 1)
     sheet.update_cell(cell.row, cell.col + 1, full_response)
@@ -239,16 +267,16 @@ def end_conversation():
     # 평어
     st.success("2/2 작업중......")
     full_response = ""
-    add_message(messages, "user", e_p)
+    add_message(messages, "user", e_p, withGS = False)
     stream = execute_prompt(messages)
     full_response = message_processing(stream)
-    add_message(messages, "assistant", full_response)
+    add_message(messages, "assistant", full_response, withGS = False)
 
     sheet.update_cell(cell.row, cell.col + 2, full_response)
     st.success("2/2 완료")
     log_p("평가 완료")
 
-def add_message(all_messages, role, message):
+def add_message(all_messages, role, message, withGS : bool = True):
     """
     메시지를 대화 기록에 추가하고 Google Sheets에도 저장하는 함수입니다.
 
@@ -261,7 +289,8 @@ def add_message(all_messages, role, message):
     동시에 Google Sheets에도 해당 메시지를 저장합니다.
     """
     all_messages.append({"role": role, "content": message})
-    gs.add_Content(role, message)
+    if withGS:
+        gs.add_Content(role, message)
 
 def delete_message():
     message = st.session_state.messages
