@@ -243,6 +243,17 @@ def end_conversation():
 
     이 함수는 세션 상태에 저장된 설정 정보와 메시지 기록을 사용합니다.
     """
+    st.success("1/2 작업중......")
+    time.sleep(2)
+    st.success("1/2 완료")
+    time.sleep(2)
+    st.success("2/2 작업중......")
+    time.sleep(2)
+    st.success("2/2 완료")
+    time.sleep(2)
+    
+    return 
+
     log_p("평가 시작")
 
     # TODO 종합평가, 평어를 시트에 저장
