@@ -175,10 +175,13 @@ def add_Hyperlink(doc, id, nick_name):
     이 함수는 "수업요약" 시트의 A열 다음 빈 행에 하이퍼링크를 추가합니다.
     하이퍼링크는 같은 문서 내의 다른 시트로 연결됩니다.
     """
+
+    
     sheet = doc.worksheet("수업요약")
-    next_row = len(sheet.col_values(1)) + 1
+    next_row = len(sheet.col_values(2)) + 1
     content = f'=HYPERLINK("#gid={id}", "{nick_name}")'
-    sheet.update_acell("A" + str(next_row), content)
+    sheet.update("A" + str(next_row), [[False]])
+    sheet.update_acell("B" + str(next_row), content)
 
 def delete_message():
     """
